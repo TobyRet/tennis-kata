@@ -1,39 +1,38 @@
+import { Player, Score } from './types'
+
 export class Game {
-  private readonly points: Record<string, number>
-  private readonly server: string
-  private readonly receiver: string
-  constructor(server: string, receiver: string) {
-    this.server = server
-    this.receiver = receiver
-    this.points = {}
-    this.points[server] = 0
-    this.points[receiver] = 0
+  private readonly points: Record<Player, number>;
+  constructor() {
+    this.points = {
+      [Player.SERVER]: 0,
+      [Player.RECEIVER]: 0
+    }
   }
 
-  public pointTo(player: string) {
-    this.points[player] +=1
+  public pointTo(player: Player) {
+    this.points[player]++
   }
 
   public score() {
     if(this.isWinner()) {
-      const playerWithMostPoints = this.points[this.server] > this.points[this.receiver] ? this.server : this.receiver
-      return playerWithMostPoints === this.server ? `Game, ${this.receiver}` : `${this.server}, Game`
+      const playerWithMostPoints = this.points[Player.SERVER] > this.points[Player.RECEIVER] ? Player.SERVER : Player.RECEIVER
+      return playerWithMostPoints === Player.SERVER ? `${Score.GAME}, ${Player.RECEIVER}` : `${Player.SERVER}, ${Score.GAME}`
     }
 
     if(this.isDuece()) {
-      return 'Deuce'
+      return Score.DEUCE
     }
 
     if(this.isAdvantage()) {
-      const playerWithMostPoints = this.points[this.server] > this.points[this.receiver] ? this.server : this.receiver
-      return `Advantage ${playerWithMostPoints}`
+      const advPlayer = this.points[Player.SERVER] > this.points[Player.RECEIVER] ? Player.SERVER : Player.RECEIVER
+      return `${Score.ADVANTAGE} ${advPlayer}`
     }
 
     const mappedScore= Object.fromEntries(
       Object.entries(this.points).map((pair) => [pair[0], this.mapScore(pair[1])])
     )
 
-    return `${mappedScore[this.server]}, ${mappedScore[this.receiver]}`
+    return `${mappedScore[Player.SERVER]}, ${mappedScore[Player.RECEIVER]}`
   }
 
   public isAdvantage() {
@@ -53,10 +52,10 @@ export class Game {
 
   private mapScore(points: number) {
     return {
-      0: 'Love',
-      1: 'Fifteen',
-      2: 'Thirty',
-      3: 'Forty'
+      0: Score.LOVE,
+      1: Score.FIFTEEN,
+      2: Score.THIRTY,
+      3: Score.FORTY
     }[points]
   }
 }
